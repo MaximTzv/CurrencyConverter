@@ -60,7 +60,6 @@ struct CurrencyConvertResultView: View {
             Spacer()
         }
         .padding()
-        .navigationTitle("Conversion")
         .background(
             LinearGradient(
                 colors: [Color(.systemGray6), Color(.systemGray5)],

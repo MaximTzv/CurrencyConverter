@@ -40,9 +40,9 @@ final class CurrencyConverterTests: XCTestCase {
     
     func testFetchRatesSuccess() async {
         await viewModel.fetchRates(for: "USD")
-        XCTAssertTrue(viewModel.currenies.contains("EUR"))
-        XCTAssertTrue(viewModel.currenies.contains("JPY"))
-        XCTAssertTrue(viewModel.currenies.contains("BGN"))
+        XCTAssertTrue(viewModel.currencies.contains("EUR"))
+        XCTAssertTrue(viewModel.currencies.contains("JPY"))
+        XCTAssertTrue(viewModel.currencies.contains("BGN"))
     }
 
     func testConvertAmountSuccess() async {

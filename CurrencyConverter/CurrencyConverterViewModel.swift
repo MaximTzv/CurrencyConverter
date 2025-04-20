@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Currency: Codable {
+struct Currency: Decodable {
     
     let result: String
     let documentation: String
@@ -35,8 +35,7 @@ class CurrencyConverterViewModel: ObservableObject {
     @Published var amount: String = ""
     @Published var convertedAmount: String = ""
     
-    @Published var currenies: [String] = []
-    @Published var errorMessage: String?
+    @Published var currencies: [String] = []
     
     @Published var sourceCurrency: String?
     @Published var targetCurrency: String?
@@ -84,11 +83,10 @@ class CurrencyConverterViewModel: ObservableObject {
                 method: .get)
             
             await MainActor.run {
-                currenies = response.conversionRates.map { $0.key }
+                currencies = response.conversionRates.map { $0.key }
                 conversionRates = response.conversionRates
             }
             
-            print("@@@ response \(response)")
         } catch {
             print("@@@ error \(error)")
         }

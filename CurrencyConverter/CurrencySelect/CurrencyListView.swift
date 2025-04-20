@@ -52,9 +52,9 @@ struct CurrencyListView: View {
     
     private var searchResults: [String] {
         if searchText.isEmpty {
-            return viewModel.currenies
+            return viewModel.currencies
         } else {
-            return viewModel.currenies.filter { $0.localizedCaseInsensitiveContains(searchText) }
+            return viewModel.currencies.filter { $0.localizedCaseInsensitiveContains(searchText) }
         }
     }
 }

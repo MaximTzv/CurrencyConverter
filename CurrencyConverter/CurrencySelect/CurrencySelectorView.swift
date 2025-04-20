@@ -89,6 +89,14 @@ struct CurrencySelectorView: View {
                 .navigationDestination(isPresented: $showConvert) {
                     CurrencyConvertResultView(viewModel: viewModel)
                 }
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") {
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        }
+                    }
+                }
             }
         }
         .sheet(isPresented: $presentSourceList) {
