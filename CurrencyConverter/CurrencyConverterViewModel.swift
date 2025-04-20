@@ -30,30 +30,50 @@ struct Currency: Codable {
     }
 }
 
-struct CurrencyPair: Equatable {
-    var from: String
-    var to: String
-    
-    mutating func swapCurrencies() {
-        swap(&from, &to)
-    }
-}
-
 class CurrencyConverterViewModel: ObservableObject {
     
-    @Published var pair = CurrencyPair(from: "USD", to: "EUR")
     @Published var amount: String = ""
     @Published var convertedAmount: String = ""
     
-    @Published var baseCode: String = ""
     @Published var currenies: [String] = []
-    
     @Published var errorMessage: String?
     
+    @Published var sourceCurrency: String?
+    @Published var targetCurrency: String?
+    
+    private var conversionRates: [String: Double] = [:]
     private let network: NetworkService
     
     init(network: NetworkService) {
         self.network = network
+    }
+    
+    func convertAmount() async {
+        guard let to = targetCurrency,
+                let amountValue = Double(amount),
+                let rate = conversionRates[to] else {
+                    await MainActor.run {
+                        convertedAmount = "-"
+                    }
+                    return
+                }
+        
+        let result = amountValue * rate
+        
+        await MainActor.run {
+            convertedAmount = String(format: "%.2f", result)
+        }
+    }
+    
+    func swapCurrencies() {
+        guard let from = sourceCurrency, let to = targetCurrency else { return }
+        sourceCurrency = to
+        targetCurrency = from
+        
+        Task {
+            await fetchRates(for: to)
+            await convertAmount()
+        }
     }
     
     func fetchRates(for currency: String) async {
@@ -63,14 +83,26 @@ class CurrencyConverterViewModel: ObservableObject {
                 path: "latest/\(currency)",
                 method: .get)
             
-            baseCode = response.baseCode
-            currenies = response.conversionRates.map { $0.key }
-            
-            pair = CurrencyPair(from: baseCode, to: baseCode)
+            await MainActor.run {
+                currenies = response.conversionRates.map { $0.key }
+                conversionRates = response.conversionRates
+            }
             
             print("@@@ response \(response)")
         } catch {
             print("@@@ error \(error)")
         }
+    }
+}
+
+// Mock viewModel just for the previews
+extension CurrencyConverterViewModel {
+    static var preview: CurrencyConverterViewModel {
+        let viewModel = CurrencyConverterViewModel(network: NetworkManager(apiKey: ""))
+        viewModel.amount = "1000"
+        viewModel.convertedAmount = "1100.23"
+        viewModel.sourceCurrency = "USD"
+        viewModel.targetCurrency = "EUR"
+        return viewModel
     }
 }
